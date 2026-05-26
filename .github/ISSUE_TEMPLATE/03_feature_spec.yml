@@ -1,0 +1,80 @@
+name: "03 · Feature Spec"
+description: "Lightweight spec for a feature being built or considered"
+title: "[SPEC] "
+labels: ["type: feature", "status: hypothesis"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Job-to-be-done
+      description: What user problem does this solve? Who has it?
+      placeholder: "Transporter dispatchers spend ~20 min/day manually assigning drivers to routes because there is no automated suggestion."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: What are we building? Keep it concise.
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of Scope
+      description: What are we explicitly NOT doing in this iteration?
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: "Bullet list: Given / When / Then or checklist format."
+    validations:
+      required: true
+
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: Open Questions
+      description: Unknowns that need resolution before or during build.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Primary Domain
+      options:
+        - Ordering
+        - Matching
+        - Routing
+        - Customer App
+        - Driver App
+        - Collector App
+        - Infra
+        - Cross-cutting
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: input
+    id: linked_bet
+    attributes:
+      label: Linked Product Bet (issue #)
+      placeholder: "#12"
+    validations:
+      required: false

@@ -1,0 +1,73 @@
+name: "02 · Product Bet"
+description: "Capture a product bet: the hypothesis, the risk, and the success criteria"
+title: "[BET] "
+labels: ["type: decision", "status: hypothesis"]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: "We believe that [doing X] for [segment] will result in [outcome Y]."
+      placeholder: "We believe that showing transporters a real-time empty-run score on their dashboard will motivate them to accept return-load orders, resulting in a 15% reduction in empty-running within 30 days."
+    validations:
+      required: true
+
+  - type: textarea
+    id: signals
+    attributes:
+      label: Supporting Signals
+      description: What customer signals, data, or insights led to this bet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: riskiest_assumption
+    attributes:
+      label: Riskiest Assumption
+      description: What single assumption, if wrong, kills this bet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria
+      description: How will we know this bet paid off? Measurable outcomes.
+      placeholder: "≥15% reduction in empty-running for pilot transporters after 30 days of feature availability."
+    validations:
+      required: true
+
+  - type: textarea
+    id: failure_criteria
+    attributes:
+      label: Failure / Kill Criteria
+      description: What result tells us to stop, pivot, or revisit?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Primary Domain
+      options:
+        - Ordering
+        - Matching
+        - Routing
+        - Customer App
+        - Driver App
+        - Collector App
+        - Infra
+        - Cross-cutting
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Expected Impact
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true

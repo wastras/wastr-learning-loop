@@ -1,0 +1,73 @@
+name: "01 · Customer Signal"
+description: "Log a real-world signal from a customer, pilot, or user interview"
+title: "[SIGNAL] "
+labels: ["type: signal"]
+body:
+  - type: dropdown
+    id: segment
+    attributes:
+      label: Customer Segment
+      options:
+        - Transporter (SMB)
+        - Builder / Contractor
+        - Internal
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Signal Source
+      options:
+        - User interview
+        - Pilot observation
+        - Support / complaint
+        - Analytics / data
+        - Sales conversation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: observation
+    attributes:
+      label: What happened / what was said?
+      description: Raw observation. Quote directly where possible.
+      placeholder: "e.g. 'The driver said he didn't know the order was cancelled until he arrived at the site.'"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: When, where, who (anonymised), what were they doing?
+    validations:
+      required: false
+
+  - type: textarea
+    id: insight
+    attributes:
+      label: Insight / So what?
+      description: What does this signal tell us? What assumption does it challenge or confirm?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Perceived Impact
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: textarea
+    id: next_action
+    attributes:
+      label: Suggested Next Action
+      description: Experiment to run, feature to reconsider, or decision to revisit?
+    validations:
+      required: false

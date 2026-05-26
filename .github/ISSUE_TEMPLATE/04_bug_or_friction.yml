@@ -1,0 +1,67 @@
+name: "04 · Bug or Friction"
+description: "Report a production bug, UX friction point, or operational failure"
+title: "[BUG] "
+labels: ["type: bug"]
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical – blocking users in production
+        - High – major friction, workaround exists
+        - Medium – noticeable but minor
+        - Low – cosmetic
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened?
+      description: Describe the bug or friction. What did you expect vs what occurred?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. See error
+    validations:
+      required: false
+
+  - type: textarea
+    id: impact_on_users
+    attributes:
+      label: Impact on Users
+      description: Who is affected and how many? Any revenue or trust implications?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options:
+        - Ordering
+        - Matching
+        - Routing
+        - Customer App
+        - Driver App
+        - Collector App
+        - Infra
+        - Cross-cutting
+    validations:
+      required: true
+
+  - type: textarea
+    id: learning
+    attributes:
+      label: Root Cause / Learning
+      description: If known, what caused this? What can we learn for the system?
+    validations:
+      required: false

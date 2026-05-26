@@ -1,0 +1,60 @@
+name: "05 · Experiment"
+description: "Design and track a structured experiment to validate or invalidate an assumption"
+title: "[EXP] "
+labels: ["type: experiment", "status: hypothesis"]
+body:
+  - type: input
+    id: linked_bet
+    attributes:
+      label: Linked Product Bet (issue #)
+      placeholder: "#12"
+    validations:
+      required: false
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis Being Tested
+      placeholder: "We believe that [X] will cause [Y] for [segment]."
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: Experiment Method
+      description: How will we test this? A/B test, pilot, interview, shadow mode, fake door…
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Metrics
+      description: What will we measure? How will we collect data?
+    validations:
+      required: true
+
+  - type: input
+    id: duration
+    attributes:
+      label: Duration / Sample Size
+      placeholder: "2 weeks / min 20 orders"
+    validations:
+      required: false
+
+  - type: textarea
+    id: results
+    attributes:
+      label: Results
+      description: Fill in after experiment. What data did we collect?
+    validations:
+      required: false
+
+  - type: textarea
+    id: conclusion
+    attributes:
+      label: Conclusion
+      description: Validated / Invalidated / Inconclusive. What do we do next?
+    validations:
+      required: false

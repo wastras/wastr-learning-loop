@@ -1,0 +1,62 @@
+name: "06 · Decision Log"
+description: "Record an architectural, product, or operational decision and its rationale"
+title: "[DECISION] "
+labels: ["type: decision"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What situation or problem forced this decision?
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decision
+      description: What was decided? Be specific.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other options were evaluated and why were they rejected?
+    validations:
+      required: false
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences
+      description: What are the expected positive and negative consequences of this decision?
+    validations:
+      required: true
+
+  - type: textarea
+    id: revisit_trigger
+    attributes:
+      label: Revisit Trigger
+      description: Under what conditions should this decision be revisited?
+      placeholder: "If we reach 50+ transporters, the single-tenant Cosmos DB partition strategy should be re-evaluated."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options:
+        - Ordering
+        - Matching
+        - Routing
+        - Customer App
+        - Driver App
+        - Collector App
+        - Infra
+        - Cross-cutting
+        - Business / Product
+    validations:
+      required: true

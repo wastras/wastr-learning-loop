@@ -1,0 +1,60 @@
+name: "07 · Weekly Review"
+description: "Weekly team review: what happened, what we learned, what changes next week"
+title: "[WEEKLY] W"
+labels: ["type: outcome"]
+body:
+  - type: input
+    id: week
+    attributes:
+      label: Week
+      placeholder: "2026-W22"
+    validations:
+      required: true
+
+  - type: textarea
+    id: shipped
+    attributes:
+      label: What We Shipped
+      description: Features, fixes, infra changes merged to production.
+    validations:
+      required: false
+
+  - type: textarea
+    id: signals_collected
+    attributes:
+      label: Signals Collected
+      description: Customer feedback, pilot observations, support tickets this week.
+    validations:
+      required: false
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Key Metrics
+      description: "Orders created, routes completed, active pilots, error rates, empty-run %, etc."
+    validations:
+      required: false
+
+  - type: textarea
+    id: learnings
+    attributes:
+      label: Top 3 Learnings
+      description: What did the system or team learn this week?
+    validations:
+      required: false
+
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Blockers & Risks
+      description: What is slowing us down or could derail us?
+    validations:
+      required: false
+
+  - type: textarea
+    id: next_week
+    attributes:
+      label: Next Week Focus
+      description: Top 3 priorities for the coming week.
+    validations:
+      required: false
