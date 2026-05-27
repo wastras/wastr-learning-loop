@@ -24,3 +24,5 @@ Each ADR contains:
 | [0003](0003-immutable-audit-trail-user-ids.md) | Immutable audit trail — store IDs, resolve names at read time | Accepted | – |
 | [0004](0004-route-owns-order-sequence.md) | Route owns order sequence via ordered `OrderIds` array | Accepted | – |
 | [0005](0005-multitenancy-via-company-id-and-aad-groups.md) | Multi-tenancy via `CompanyId` + AAD group claims | Accepted | – |
+| [0006](0006-service-bus-and-event-grid.md) | Service Bus for work, Event Grid for fan-out | Accepted | – |
+| [0007](0007-signalr-for-client-realtime.md) | SignalR for client realtime, one hub for Collector and Driver | Accepted | – |

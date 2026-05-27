@@ -22,9 +22,10 @@ Each entry:
   Azure **Event Grid** topics handle broadcast fan-out (an `OrderAccepted`
   event must light up N independent notification channels — email today; SMS,
   WhatsApp, push tomorrow).
-- **Confirmed by:** Marketplace processing runs cleanly through Service Bus;
-  Notification Service consumes Event Grid and currently dispatches email only,
-  with channel-specific handlers ready to add without producer changes.
+- **Confirmed by:** ADR-0006; marketplace processing runs cleanly through
+  Service Bus; Notification Service consumes Event Grid and currently
+  dispatches email only, with channel-specific handlers ready to add without
+  producer changes.
 - **Implications:**
   - Producers stay dumb. The Ordering Service publishes one event; subscribers
     decide what to do — adding a WhatsApp channel does not touch Ordering.
@@ -43,9 +44,9 @@ Each entry:
   (executor view) need to know now, not on next refresh. A single SignalR hub
   pushing the same domain events to both audiences is simpler and cheaper than
   per-app polling or per-role notification channels.
-- **Confirmed by:** Collector app uses SignalR for marketplace + route updates;
-  Driver app uses SignalR for new-order push and route changes. No polling
-  fallback has been needed in the pilot.
+- **Confirmed by:** ADR-0007; Collector app uses SignalR for marketplace +
+  route updates; Driver app uses SignalR for new-order push and route changes.
+  No polling fallback has been needed in the pilot.
 - **Implications:**
   - Treat realtime as a first-class transport, not an optimization. New
     domain events (route reordered, order reassigned, evidence captured)
