@@ -111,3 +111,24 @@ Each entry:
     confirmation, the upstream step is broken.
 - **Date promoted:** 2026-05-20
 
+## L-009 — Both sides of a job need the same realtime channel
+
+- **Learning:** Logistics is inherently two-sided in real time — when something
+  changes on a route, both the collector (dispatcher view) and the driver
+  (executor view) need to know now, not on next refresh. A single SignalR hub
+  pushing the same domain events to both audiences is simpler and cheaper than
+  per-app polling or per-role notification channels.
+- **Confirmed by:** Collector app uses SignalR for marketplace + route updates;
+  Driver app uses SignalR for new-order push and route changes. No polling
+  fallback has been needed in the pilot.
+- **Implications:**
+  - Treat realtime as a first-class transport, not an optimization. New
+    domain events (route reordered, order reassigned, evidence captured)
+    should publish to SignalR by default.
+  - Keep the event payload small — push the *fact* of change + the entity id;
+    let the client re-fetch through the BFF for the full shape. This avoids
+    re-implementing authorization in the push channel.
+  - When we add a third surface (admin live board, customer "your driver is
+    en route" view), it joins the same hub — no new infrastructure.
+- **Date promoted:** 2026-05-25
+
