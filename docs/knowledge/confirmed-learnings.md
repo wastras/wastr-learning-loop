@@ -132,3 +132,25 @@ Each entry:
     en route" view), it joins the same hub — no new infrastructure.
 - **Date promoted:** 2026-05-25
 
+## L-010 — Split async transports by purpose: queue for work, topic for fan-out
+
+- **Learning:** Two distinct event needs deserve two distinct transports.
+  Azure **Service Bus** queues handle ordered, exactly-once work (an order
+  posted to the marketplace must be picked up by exactly one matching worker).
+  Azure **Event Grid** topics handle broadcast fan-out (an `OrderAccepted`
+  event must light up N independent notification channels — email today; SMS,
+  WhatsApp, push tomorrow).
+- **Confirmed by:** Marketplace processing runs cleanly through Service Bus;
+  Notification Service consumes Event Grid and currently dispatches email only,
+  with channel-specific handlers ready to add without producer changes.
+- **Implications:**
+  - Producers stay dumb. The Ordering Service publishes one event; subscribers
+    decide what to do — adding a WhatsApp channel does not touch Ordering.
+  - Pick the transport by question: *"must exactly one worker do this?"* →
+    Service Bus. *"may zero-to-many subscribers react?"* → Event Grid.
+  - Notification channels are a strategy pattern keyed on the user's
+    `NotificationChannels` preference; new channels are pure additions.
+  - Resist temptation to use SignalR (L-009) for server-to-server work — that
+    channel is for client push, not workflow orchestration.
+- **Date promoted:** 2026-05-26
+
