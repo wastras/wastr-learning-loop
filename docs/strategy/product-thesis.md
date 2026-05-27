@@ -49,8 +49,10 @@ materials + return waste) is the technical core IP.
 - QR-initiated customer ordering with geolocation capture.
 - Multi-tenant Collector app with company / personal order views, drag-and-drop
   route builder, real-time updates via SignalR.
-- Driver app with pickup / delivery flows and evidence capture (photo + weight
-  slip + signature + GPS).
+- Driver app with pickup / delivery flows and **single-photo evidence capture**
+  (one photo + GPS + optional notes per stage). Richer evidence types
+  (multi-photo, weight-slip OCR, signature, structured documents) are scaffolded
+  in the domain model but not yet exposed in the UI.
 - Order lifecycle (Pending → Accepted → InProgress → Completed) with immutable
   audit trail.
 - Service-to-service Azure AD identity, JIT user provisioning, company isolation.
@@ -60,6 +62,8 @@ materials + return waste) is the technical core IP.
 
 - Two-way routing engine PoC (research project #5).
 - Computer-vision waste classification (research projects #6–8).
+- Richer evidence capture — multi-photo, weight-slip OCR, signature, structured
+  documents (domain model ready; UI work pending).
 - Full ESG / NS 9431 reporting dashboard.
 - Neutral multi-actor API standard (research project #9).
 

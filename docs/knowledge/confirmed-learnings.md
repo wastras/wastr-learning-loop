@@ -76,3 +76,20 @@ Each entry:
   Basic Auth allowed only for legacy / on-prem integrations.
 - **Date promoted:** 2026-03-05
 
+## L-007 — Single-photo evidence is enough for the MVP
+
+- **Learning:** A single photo (+ GPS + timestamp + capturing user) per pickup
+  and per delivery is sufficient to resolve >90% of post-job disputes in pilot
+  data. Multi-photo, weight-slip OCR and signature capture are nice-to-haves,
+  not blockers for v1.
+- **Confirmed by:** Drammen pilot dispute log — no case to date has required
+  evidence beyond the single photo.
+- **Implications:**
+  - Ship richer evidence types only when a concrete signal demands it.
+  - The `OrderEvidence` domain model already supports `WeightSlip`, `Signature`,
+    `Document` types — keep them defined so future UI work is additive, not
+    schema-breaking.
+  - Computer-vision waste classification (R&D projects #6–8) can train on the
+    single-photo corpus we already capture; no app-side rework needed.
+- **Date promoted:** 2026-03-22
+
