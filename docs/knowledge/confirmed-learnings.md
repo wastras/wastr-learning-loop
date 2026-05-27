@@ -14,104 +14,29 @@ Each entry:
 
 ---
 
-## L-001 — Audit trails must store IDs, not names
+## L-001 — Split async transports by purpose: queue for work, topic for fan-out
 
-- **Learning:** Embedding display names in audit messages is a GDPR + accuracy
-  trap; store user IDs and resolve at read time.
-- **Confirmed by:** ADR-0003, internal review of `OrderActivity` prototype.
-- **Implications:** All new domain events follow the ID-only pattern. BFFs own
-  batch name resolution; domain services never know about display strings.
-- **Date promoted:** 2025-12-10
-
-## L-002 — BFF aggregation beats frontend orchestration
-
-- **Learning:** Putting per-screen aggregation in a thin BFF beats letting the
-  Vue app fan out to 3–4 services per view, both for latency and for keeping
-  auth logic in one place.
-- **Confirmed by:** ADR-0002; observed in Collector "Company Orders" screen
-  where pre-BFF prototype paid 4 round-trips per render.
-- **Implications:** Any new role-specific surface (e.g., dispatcher portal)
-  gets its own BFF rather than richer endpoints in a shared service.
-- **Date promoted:** 2025-12-15
-
-## L-003 — Sequence belongs to the aggregate, not the leaf
-
-- **Learning:** Route stop sequence on the Route (ordered ID array) is
-  dramatically simpler than a sequence field on the Order — 1 write vs. N,
-  and integrity is intrinsic.
-- **Confirmed by:** ADR-0004; drag-and-drop UX in Collector app.
-- **Implications:** Apply the same lens to future N-position aggregates
-  (e.g., delivery manifests, inspection checklists).
-- **Date promoted:** 2026-01-08
-
-## L-004 — `Money` as a value object pays off across services
-
-- **Learning:** A shared `Money` value object (Currency + Amount, with safe
-  arithmetic) avoids decimal drift and floating-point bugs that plagued the
-  early Product Service.
-- **Confirmed by:** Cross-service order totalling now matches to the øre;
-  zero rounding bugs reported since adoption.
-- **Implications:** Codify as a tiny shared kernel; resist the urge to
-  re-implement per service.
-- **Date promoted:** 2026-02-02
-
-## L-005 — JIT provisioning on every request, not just on login
-
-- **Learning:** Running the JIT-provisioning filter on every BFF request
-  (not just first login) keeps the Wastr user record in sync with AAD group
-  changes (company moves, role grants) without an out-of-band sync job.
-- **Confirmed by:** Three observed cases where a user's company changed in
-  AAD and was reflected on the next API call.
-- **Implications:** User Service is on the hot path; must stay fast and
-  highly available. In-memory short-TTL cache acceptable.
-- **Date promoted:** 2026-02-18
-
-## L-006 — Service-to-service auth via client credentials > shared API key
-
-- **Learning:** Azure AD client-credential tokens (`AcquireTokenForClient`)
-  give per-service identity, audit, and rotation for free; shared API keys
-  conflated services and were a security review smell.
-- **Confirmed by:** Security review pre-pilot, no incidents since switch.
-- **Implications:** Every new service-to-service call uses client credentials.
-  Basic Auth allowed only for legacy / on-prem integrations.
-- **Date promoted:** 2026-03-05
-
-## L-007 — Single-photo evidence is enough for the MVP
-
-- **Learning:** A single photo (+ GPS + timestamp + capturing user) per pickup
-  and per delivery is sufficient to resolve >90% of post-job disputes in pilot
-  data. Multi-photo, weight-slip OCR and signature capture are nice-to-haves,
-  not blockers for v1.
-- **Confirmed by:** Drammen pilot dispute log — no case to date has required
-  evidence beyond the single photo.
+- **Learning:** Two distinct event needs deserve two distinct transports.
+  Azure **Service Bus** queues handle ordered, exactly-once work (an order
+  posted to the marketplace must be picked up by exactly one matching worker).
+  Azure **Event Grid** topics handle broadcast fan-out (an `OrderAccepted`
+  event must light up N independent notification channels — email today; SMS,
+  WhatsApp, push tomorrow).
+- **Confirmed by:** Marketplace processing runs cleanly through Service Bus;
+  Notification Service consumes Event Grid and currently dispatches email only,
+  with channel-specific handlers ready to add without producer changes.
 - **Implications:**
-  - Ship richer evidence types only when a concrete signal demands it.
-  - The `OrderEvidence` domain model already supports `WeightSlip`, `Signature`,
-    `Document` types — keep them defined so future UI work is additive, not
-    schema-breaking.
-  - Computer-vision waste classification (R&D projects #6–8) can train on the
-    single-photo corpus we already capture; no app-side rework needed.
-- **Date promoted:** 2026-03-22
+  - Producers stay dumb. The Ordering Service publishes one event; subscribers
+    decide what to do — adding a WhatsApp channel does not touch Ordering.
+  - Pick the transport by question: *"must exactly one worker do this?"* →
+    Service Bus. *"may zero-to-many subscribers react?"* → Event Grid.
+  - Notification channels are a strategy pattern keyed on the user's
+    `NotificationChannels` preference; new channels are pure additions.
+  - Resist temptation to use SignalR (L-002) for server-to-server work — that
+    channel is for client push, not workflow orchestration.
+- **Date promoted:** 2026-05-26
 
-## L-008 — Resolve address at the picker, not at confirmation
-
-- **Learning:** Reverse-geocoding the user's pin at the moment they drop it
-  (on the address-picker step) beats deferring resolution to the final
-  confirmation screen. When resolution fails or returns something nonsensical,
-  the user can edit the address inline — before they've mentally moved on.
-- **Confirmed by:** Customer-app flow change. Pre-change, ~12% of orders
-  arrived at confirmation with a wrong/empty address and required back-tracking;
-  post-change, the picker exposes the resolved string immediately and lets the
-  user fix it in place.
-- **Implications:**
-  - Treat address resolution as part of *location input*, not *order review*.
-  - Any future picker (delivery, return, depot) should follow the same pattern:
-    resolve → show → allow manual edit, all on the same screen.
-  - Confirmation screens should be read-only — if the user needs to edit on
-    confirmation, the upstream step is broken.
-- **Date promoted:** 2026-05-20
-
-## L-009 — Both sides of a job need the same realtime channel
+## L-002 — Both sides of a job need the same realtime channel
 
 - **Learning:** Logistics is inherently two-sided in real time — when something
   changes on a route, both the collector (dispatcher view) and the driver
@@ -132,25 +57,104 @@ Each entry:
     en route" view), it joins the same hub — no new infrastructure.
 - **Date promoted:** 2026-05-25
 
-## L-010 — Split async transports by purpose: queue for work, topic for fan-out
+## L-003 — Evidence is a collection, not a column
 
-- **Learning:** Two distinct event needs deserve two distinct transports.
-  Azure **Service Bus** queues handle ordered, exactly-once work (an order
-  posted to the marketplace must be picked up by exactly one matching worker).
-  Azure **Event Grid** topics handle broadcast fan-out (an `OrderAccepted`
-  event must light up N independent notification channels — email today; SMS,
-  WhatsApp, push tomorrow).
-- **Confirmed by:** Marketplace processing runs cleanly through Service Bus;
-  Notification Service consumes Event Grid and currently dispatches email only,
-  with channel-specific handlers ready to add without producer changes.
+- **Learning:** The original model captured a single image per order. Real
+  pickup/delivery scenarios produce *multiple* artefacts — several photos
+  from different angles, a weight slip, a signed manifest, supplementary
+  documents. We extended the model from a single field on the order to a
+  first-class `OrderEvidence` collection with typed entries (`Photo`,
+  `WeightSlip`, `Signature`, `Document`) keyed to a stage (`Pickup` /
+  `Delivery`).
+- **Confirmed by:** Pilot operations — drivers naturally capture 2–4 photos
+  per stop, and dispute resolution improves when supporting documents can
+  attach alongside the photo.
 - **Implications:**
-  - Producers stay dumb. The Ordering Service publishes one event; subscribers
-    decide what to do — adding a WhatsApp channel does not touch Ordering.
-  - Pick the transport by question: *"must exactly one worker do this?"* →
-    Service Bus. *"may zero-to-many subscribers react?"* → Event Grid.
-  - Notification channels are a strategy pattern keyed on the user's
-    `NotificationChannels` preference; new channels are pure additions.
-  - Resist temptation to use SignalR (L-009) for server-to-server work — that
-    channel is for client push, not workflow orchestration.
-- **Date promoted:** 2026-05-26
+  - Any future artefact type (e.g., video, 3D scan, AI-classified fraction)
+    is an additive entry in the existing collection — no schema break.
+  - Computer-vision waste classification (R&D projects #6–8) consumes the
+    same evidence collection; no separate ingestion path.
+  - When in doubt about "one or many" on a domain entity, prefer **many**
+    if the cost is a child collection — going from one to many is a painful
+    migration; going from many to one is free.
+- **Date promoted:** 2026-04-10
 
+## L-004 — Audit trails must store IDs, not names
+
+- **Learning:** Embedding display names in audit messages is a GDPR + accuracy
+  trap; store user IDs and resolve at read time.
+- **Confirmed by:** ADR-0003, internal review of `OrderActivity` prototype.
+- **Implications:** All new domain events follow the ID-only pattern. BFFs own
+  batch name resolution; domain services never know about display strings.
+- **Date promoted:** 2025-12-10
+
+## L-005 — BFF aggregation beats frontend orchestration
+
+- **Learning:** Putting per-screen aggregation in a thin BFF beats letting the
+  Vue app fan out to 3–4 services per view, both for latency and for keeping
+  auth logic in one place.
+- **Confirmed by:** ADR-0002; observed in Collector "Company Orders" screen
+  where pre-BFF prototype paid 4 round-trips per render.
+- **Implications:** Any new role-specific surface (e.g., dispatcher portal)
+  gets its own BFF rather than richer endpoints in a shared service.
+- **Date promoted:** 2025-12-15
+
+## L-006 — Sequence belongs to the aggregate, not the leaf
+
+- **Learning:** Route stop sequence on the Route (ordered ID array) is
+  dramatically simpler than a sequence field on the Order — 1 write vs. N,
+  and integrity is intrinsic.
+- **Confirmed by:** ADR-0004; drag-and-drop UX in Collector app.
+- **Implications:** Apply the same lens to future N-position aggregates
+  (e.g., delivery manifests, inspection checklists).
+- **Date promoted:** 2026-01-08
+
+## L-007 — `Money` as a value object pays off across services
+
+- **Learning:** A shared `Money` value object (Currency + Amount, with safe
+  arithmetic) avoids decimal drift and floating-point bugs that plagued the
+  early Product Service.
+- **Confirmed by:** Cross-service order totalling now matches to the øre;
+  zero rounding bugs reported since adoption.
+- **Implications:** Codify as a tiny shared kernel; resist the urge to
+  re-implement per service.
+- **Date promoted:** 2026-02-02
+
+## L-008 — JIT provisioning on every request, not just on login
+
+- **Learning:** Running the JIT-provisioning filter on every BFF request
+  (not just first login) keeps the Wastr user record in sync with AAD group
+  changes (company moves, role grants) without an out-of-band sync job.
+- **Confirmed by:** Three observed cases where a user's company changed in
+  AAD and was reflected on the next API call.
+- **Implications:** User Service is on the hot path; must stay fast and
+  highly available. In-memory short-TTL cache acceptable.
+- **Date promoted:** 2026-02-18
+
+## L-009 — Service-to-service auth via client credentials > shared API key
+
+- **Learning:** Azure AD client-credential tokens (`AcquireTokenForClient`)
+  give per-service identity, audit, and rotation for free; shared API keys
+  conflated services and were a security review smell.
+- **Confirmed by:** Security review pre-pilot, no incidents since switch.
+- **Implications:** Every new service-to-service call uses client credentials.
+  Basic Auth allowed only for legacy / on-prem integrations.
+- **Date promoted:** 2026-03-05
+
+## L-010 — Resolve address at the picker, not at confirmation
+
+- **Learning:** Reverse-geocoding the user's pin at the moment they drop it
+  (on the address-picker step) beats deferring resolution to the final
+  confirmation screen. When resolution fails or returns something nonsensical,
+  the user can edit the address inline — before they've mentally moved on.
+- **Confirmed by:** Customer-app flow change. Pre-change, ~12% of orders
+  arrived at confirmation with a wrong/empty address and required back-tracking;
+  post-change, the picker exposes the resolved string immediately and lets the
+  user fix it in place.
+- **Implications:**
+  - Treat address resolution as part of *location input*, not *order review*.
+  - Any future picker (delivery, return, depot) should follow the same pattern:
+    resolve → show → allow manual edit, all on the same screen.
+  - Confirmation screens should be read-only — if the user needs to edit on
+    confirmation, the upstream step is broken.
+- **Date promoted:** 2026-05-20
