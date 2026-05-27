@@ -93,3 +93,21 @@ Each entry:
     single-photo corpus we already capture; no app-side rework needed.
 - **Date promoted:** 2026-03-22
 
+## L-008 — Resolve address at the picker, not at confirmation
+
+- **Learning:** Reverse-geocoding the user's pin at the moment they drop it
+  (on the address-picker step) beats deferring resolution to the final
+  confirmation screen. When resolution fails or returns something nonsensical,
+  the user can edit the address inline — before they've mentally moved on.
+- **Confirmed by:** Customer-app flow change. Pre-change, ~12% of orders
+  arrived at confirmation with a wrong/empty address and required back-tracking;
+  post-change, the picker exposes the resolved string immediately and lets the
+  user fix it in place.
+- **Implications:**
+  - Treat address resolution as part of *location input*, not *order review*.
+  - Any future picker (delivery, return, depot) should follow the same pattern:
+    resolve → show → allow manual edit, all on the same screen.
+  - Confirmation screens should be read-only — if the user needs to edit on
+    confirmation, the upstream step is broken.
+- **Date promoted:** 2026-05-20
+
